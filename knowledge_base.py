@@ -38,7 +38,6 @@ def _get_api_key() -> str:
         "或在 .streamlit/secrets.toml 中配置。"
     )
 
-SILICONFLOW_API_KEY = _get_api_key()
 EMBEDDING_MODEL = "BAAI/bge-m3"
 CHROMA_PERSIST_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
 DOCUMENTS_DIR = os.path.join(os.path.dirname(__file__), "data", "documents")
@@ -99,10 +98,10 @@ HUXIANG_URLS = [
 
 
 def get_embeddings() -> OpenAIEmbeddings:
-    """获取 SiliconFlow 嵌入模型实例"""
+    """获取 SiliconFlow 嵌入模型实例（惰性加载 API Key）"""
     return OpenAIEmbeddings(
         openai_api_base="https://api.siliconflow.cn/v1",
-        openai_api_key=SILICONFLOW_API_KEY,
+        openai_api_key=_get_api_key(),
         model=EMBEDDING_MODEL,
     )
 
