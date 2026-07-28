@@ -10,7 +10,7 @@ from typing import List, Optional, Tuple
 from langchain_core.documents import Document
 from langchain_openai import ChatOpenAI
 
-from knowledge_base import load_vector_store, SILICONFLOW_API_KEY
+from knowledge_base import load_vector_store, _get_api_key
 
 # ============ 配置 ============
 
@@ -44,10 +44,10 @@ ZHU_XI_SYSTEM_PROMPT = """你是朱熹（1130年-1200年），南宋著名理学
 
 
 def get_llm() -> ChatOpenAI:
-    """获取 SiliconFlow 大语言模型实例"""
+    """获取 SiliconFlow 大语言模型实例（惰性加载 API Key）"""
     return ChatOpenAI(
         openai_api_base="https://api.siliconflow.cn/v1",
-        openai_api_key=SILICONFLOW_API_KEY,
+        openai_api_key=_get_api_key(),
         model=LLM_MODEL,
         temperature=LLM_TEMPERATURE,
         max_tokens=LLM_MAX_TOKENS,
