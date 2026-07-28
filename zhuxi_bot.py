@@ -14,7 +14,7 @@ from knowledge_base import load_vector_store, _get_api_key
 
 # ============ 配置 ============
 
-LLM_MODEL = "Qwen/Qwen2.5-7B-Instruct"
+LLM_MODEL = "zai-org/GLM-5.2"
 LLM_TEMPERATURE = 0.7
 LLM_MAX_TOKENS = 1024
 HISTORY_WINDOW = 6  # 保留最近6轮对话
