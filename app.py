@@ -221,9 +221,19 @@ def init_session_state():
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    if "bot" not in st.session_state:
+    if "bot_error" not in st.session_state:
+        st.session_state.bot_error = None
+
+    if "bot" not in st.session_state and not st.session_state.bot_error:
         with st.spinner("老夫正在准备中..."):
-            st.session_state.bot = get_bot()
+            try:
+                st.session_state.bot = get_bot()
+            except ValueError as e:
+                err_msg = str(e)
+                if "API Key" in err_msg or "SILICONFLOW" in err_msg:
+                    st.session_state.bot_error = err_msg
+                else:
+                    raise
 
     if "first_load" not in st.session_state:
         st.session_state.first_load = True
@@ -282,10 +292,51 @@ def render_chat_history():
                 st.markdown(msg["content"])
 
 
+def render_api_key_error():
+    """渲染 API Key 配置错误提示"""
+    st.markdown("""
+    <div style="padding: 2rem; background: #fff3cd; border-radius: 12px;
+                border: 1px solid #ffc107; margin-top: 2rem;">
+        <h3 style="color: #856404; margin-bottom: 1rem;">
+            ⚠️ 未配置 SiliconFlow API Key
+        </h3>
+        <p style="color: #856404; font-size: 1rem; line-height: 1.6;">
+            部署到 Streamlit Community Cloud 时，需要在 Dashboard 中配置 Secrets。
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.subheader("配置步骤")
+    st.markdown("""
+    1. 打开你的 App 页面 (`https://share.streamlit.io/...`)
+    2. 点击右下角 **⋮ → Settings**（或访问 Streamlit Cloud Dashboard）
+    3. 切换到 **Secrets** 标签页
+    4. 添加以下内容：
+    """)
+
+    st.code("SILICONFLOW_API_KEY = \"你的API密钥\"", language="toml")
+
+    st.markdown("""
+    5. 点击 **Save** 保存
+    6. 回到 App 页面，点击 **⋮ → Reboot** 重启应用
+
+    ---
+    **本地开发时**：通过环境变量配置即可，无需上述步骤。
+    ```bash
+    set SILICONFLOW_API_KEY=你的API密钥
+    ```
+    """)
+
+
 def main():
     """主函数"""
     init_session_state()
     render_header()
+
+    # 如果有 API Key 错误，显示配置指南
+    if st.session_state.get("bot_error"):
+        render_api_key_error()
+        return
 
     # 清空对话按钮
     col1, col2, col3 = st.columns([6, 1, 1])
